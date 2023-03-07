@@ -23,20 +23,17 @@ if options.cfgfile is None:
 else:
     config = Config(options.cfgfile)
 
-args = ['psql']
-args.append('-U')
+args = ['psql', '-U']
 args.append(config.get('DATABASE', 'user'))
 if config.has_option('DATABASE', 'host'):
-    args.append('-h')
-    args.append(config.get('DATABASE', 'host'))
+    args.extend(('-h', config.get('DATABASE', 'host')))
 if config.has_option('DATABASE', 'port'):
-    args.append('-p')
-    args.append(config.get('DATABASE', 'port'))
+    args.extend(('-p', config.get('DATABASE', 'port')))
 args.append(config.get('DATABASE', 'name'))
 
 if not options.public:
     schema = config.schema.name(options.schema)
-    os.environ['PGOPTIONS'] = '-c search_path=%s,public' % schema
+    os.environ['PGOPTIONS'] = f'-c search_path={schema},public'
 if config.has_option('DATABASE', 'password'):
     os.environ['PGPASSWORD'] = config.get('DATABASE', 'password')
 os.execvp("psql", args)

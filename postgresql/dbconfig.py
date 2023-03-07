@@ -35,8 +35,7 @@ class Config(object):
             self.schema.parse(self.cfg, 'schemas')
 
     def make_psql_args(self):
-        opts = {}
-        opts['database'] = self.cfg.get('DATABASE', 'name')
+        opts = {'database': self.cfg.get('DATABASE', 'name')}
         opts['user'] = self.cfg.get('DATABASE', 'user')
         if self.cfg.has_option('DATABASE', 'password'):
             opts['password'] = self.cfg.get('DATABASE', 'password')

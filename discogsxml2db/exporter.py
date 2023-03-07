@@ -48,7 +48,7 @@ class EntityCsvExporter(object):
         if os.path.isfile(in_file_or_dir):
             self.pattern = in_file_or_dir
         else:
-            lookup = 'discogs_[0-9]*_{}s.xml*'.format(entity)
+            lookup = f'discogs_[0-9]*_{entity}s.xml*'
             self.pattern = os.path.join(in_file_or_dir, lookup)
 
         # where and how the exporter will write to
@@ -68,7 +68,7 @@ class EntityCsvExporter(object):
             elif fpath.endswith('.xml'):
                 return open(fpath, mode='rb')
             else:
-                raise RuntimeError('unknown file type: {}'.format(fpath))
+                raise RuntimeError(f'unknown file type: {fpath}')
 
     def export(self):
         return self.export_from_file(self.openfile())
@@ -119,9 +119,7 @@ class EntityCsvExporter(object):
 
         # ncols=self.progress_bar_width does not seem to work well when the console is not as wide
         # leaving out ncols allows the tqdm to set out a good width
-        with tqdm(total=self.max_hint,
-                  desc='Processing {:>10}s'.format(self.entity),
-                  unit='{}s'.format(self.entity)) as pbar:
+        with tqdm(total=self.max_hint, desc='Processing {:>10}s'.format(self.entity), unit=f'{self.entity}s') as pbar:
 
             for cnt, entity in enumerate(filter(self.validate, self.parser.parse(fp)), start=1):
                 if not self.dry_run:
@@ -149,9 +147,7 @@ class LabelExporter(EntityCsvExporter):
         )
 
     def validate(self, label):
-        if not label.name:
-            return False
-        return True
+        return bool(label.name)
 
 
 class ArtistExporter(EntityCsvExporter):
@@ -310,7 +306,7 @@ def main(arguments):
         }
         response = requests.get('https://api.discogs.com/', timeout=5, headers=headers)
         try:
-            rough_counts.update(response.json().get('statistics'))
+            rough_counts |= response.json().get('statistics')
         except Exception:
             pass
 
@@ -318,7 +314,7 @@ def main(arguments):
         # use --export to select the entities
         in_base = arguments['INPUT_DIR']
         for entity in arguments['--export']:
-            expected_count = rough_counts['{}s'.format(entity)]
+            expected_count = rough_counts[f'{entity}s']
             exporter = _exporters[entity](
                 in_base,
                 out_base,
@@ -330,15 +326,12 @@ def main(arguments):
             exporter.export()
     elif arguments["<INPUT_FILE>"] or os.path.isfile(arguments["INPUT_DIR"]):
         files = []
-        if arguments["<INPUT_FILE>"]:
-            files = arguments["<INPUT_FILE>"]
-        else:
-            files = [arguments["INPUT_DIR"]]
+        files = arguments["<INPUT_FILE>"] or [arguments["INPUT_DIR"]]
         for in_file in files:
             for entity in _exporters:
                 # discogs files are named discogs_{date}_{entity}s.xml
                 if f"_{entity}" in in_file:
-                    expected_count = rough_counts['{}s'.format(entity)]
+                    expected_count = rough_counts[f'{entity}s']
                     exporter = _exporters[entity](
                         in_file,
                         out_base,

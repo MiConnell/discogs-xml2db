@@ -16,7 +16,7 @@ from discogsxml2db.exporter import csv_headers  # noqa
 
 
 def load_csv(filename, db):
-    print("Importing data from {}".format(filename))
+    print(f"Importing data from {filename}")
     base, fname = os.path.split(filename)
     table, ext = fname.split('.', 1)
     if ext.startswith('csv'):
