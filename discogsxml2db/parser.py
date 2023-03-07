@@ -95,8 +95,7 @@ class DiscogsDumpEntityParser(object):
 
     def children_text(self, element):
         for child in element.iterchildren():
-            ct = gettext_stripped(child)
-            if ct:
+            if ct := gettext_stripped(child):
                 yield ct
 
     def element_attributes(self, element, entity_class):
@@ -323,12 +322,10 @@ class DiscogsReleaseParser(DiscogsDumpEntityParser):
                             list(self.element_artists(e,
                                                       extra=(t == 'extraartists'))))
                 elif t in ('sub_tracks'):
-                    subtracks = list(self.element_tracklist(e,
-                                                            parent=int(self.track_sequence)))
+                    subtracks = list(self.element_tracklist(e, parent=self.track_sequence))
             yield entity
             if subtracks:
-                for t in subtracks:
-                    yield t
+                yield from subtracks
                 subtracks = []
 
     def element_identifiers(self, element):

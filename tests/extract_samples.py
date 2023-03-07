@@ -50,7 +50,8 @@ def main():
     extract_count = int(arguments["--count"])
     extract_batch = extract_count // SAMPLES
     extract_windows = [
-        (percent_breaks * step, percent_breaks * step + extract_batch) for step in range(0, SAMPLES)
+        (percent_breaks * step, percent_breaks * step + extract_batch)
+        for step in range(SAMPLES)
     ]
 
     # since we run this as a script, we need to add the parent folder
@@ -89,7 +90,7 @@ def main():
                 return False
         return False
 
-    out_file = os.path.splitext(in_file)[0] + f"-sample-{extract_count}.xml"
+    out_file = f"{os.path.splitext(in_file)[0]}-sample-{extract_count}.xml"
     in_fp = openfile(in_file)
     with open(out_file, mode="wb") as out_fp:
         out_fp.write(b"<" + bytearray(parser_name, "utf-8") + b">\n")

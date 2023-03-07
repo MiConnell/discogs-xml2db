@@ -42,18 +42,17 @@ def read_config(path):
         file_content = '[general]\n' + f.read()
     config_parser = configparser.RawConfigParser()
     config_parser.read_string(file_content)
-    config = config_parser["general"]
-    return config
+    return config_parser["general"]
 
 
 def import_csv(path, mysql_config):
     base, filename = os.path.split(path)
     table, ext = filename.split('.', 1)
     if ext != 'csv':
-        print('%s can not be imported: not a .csv file' % filename)
+        print(f'{filename} can not be imported: not a .csv file')
         return
     fp = open(path)
-    print("importing %s" % filename)
+    print(f"importing {filename}")
     cols = fp.readline()[:-1]
     sql = """load data local infile '%s'
            into table %s
@@ -87,4 +86,4 @@ for path in paths:
     if os.path.isfile(path):
         import_csv(path, mysql_config)
     else:
-        print("error: '%s' is not a readable file" % path)
+        print(f"error: '{path}' is not a readable file")
